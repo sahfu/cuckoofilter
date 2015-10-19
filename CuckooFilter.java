@@ -27,8 +27,8 @@ public class CuckooFilter {
     /**
      * insert an object into cuckoo filter
      *
-     * @param o
-     * @return false when filter consideredly full or  insert an null object
+     * @param o The object is to be inserted
+     * @return false if filter consideredly full or insert an null object
      */
     public boolean insert(Object o) {
         if (o == null)
@@ -45,6 +45,12 @@ public class CuckooFilter {
         return relocateAndInsert(i1, i2, f);
     }
 
+    /**
+     * insert an object into cuckoo filter before checking whether the object is already inside
+     *
+     * @param o The object is to be inserted
+     * @return false when filter consideredly full or the object is already inside
+     */
     public boolean insertUnique(Object o) {
         if (contains(o))
             return false;
@@ -68,6 +74,14 @@ public class CuckooFilter {
     }
 
 
+    /**
+     * Returns <tt>true</tt> if this filter contains a fingerprint for the
+     * object.
+     *
+     * @param o The object is to be tested
+     * @return <tt>true</tt> if this map contains a fingerprint for the
+     * object.
+     */
     public boolean contains(Object o) {
         byte f = fingerprint(o);
         int i1 = hash(o);
@@ -80,7 +94,8 @@ public class CuckooFilter {
      * previously inserted.
      *
      * @param o
-     * @return
+     * @return <tt>true</tt> if this map contains a fingerprint for the
+     * object.
      */
     public boolean delete(Object o) {
         byte f = fingerprint(o);
@@ -89,18 +104,27 @@ public class CuckooFilter {
         return buckets[i1].delete(f) || buckets[i2].delete(f);
     }
 
+    /**
+     * Returns the number of fingerprints in this map.
+     *
+     * @return the number of fingerprints in this map
+     */
     public int size() {
         return size;
     }
 
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
     private byte fingerprint(Object o) {
         int h = o.hashCode();
-        h += ~(h<<15);
-        h ^=  (h>>10);
-        h +=  (h<<3);
-        h ^=  (h>>6);
-        h += ~(h<<11);
-        h ^=  (h>>16);
+        h += ~(h << 15);
+        h ^= (h >> 10);
+        h += (h << 3);
+        h ^= (h >> 6);
+        h += ~(h << 11);
+        h ^= (h >> 16);
         byte hash = (byte) h;
         if (hash == Bucket.NULL_FINGERPRINT)
             hash = 40;
@@ -119,9 +143,6 @@ public class CuckooFilter {
         return h & (capacity - 1);
     }
 
-    public boolean isEmpty() {
-        return size == 0;
-    }
 
     static final int tableSizeFor(int cap) {
         int n = cap - 1;
