@@ -52,7 +52,7 @@ public class CuckooFilter {
      * @return false when filter consideredly full or the object is already inside
      */
     public boolean insertUnique(Object o) {
-        if (contains(o))
+        if (o == null || contains(o))
             return false;
         return insert(o);
     }
@@ -83,6 +83,8 @@ public class CuckooFilter {
      * object.
      */
     public boolean contains(Object o) {
+        if(o == null)
+            return false;
         byte f = fingerprint(o);
         int i1 = hash(o);
         int i2 = i1 ^ hash(f);
@@ -98,6 +100,8 @@ public class CuckooFilter {
      * object.
      */
     public boolean delete(Object o) {
+        if(o == null)
+            return false;
         byte f = fingerprint(o);
         int i1 = hash(o);
         int i2 = i1 ^ hash(f);
